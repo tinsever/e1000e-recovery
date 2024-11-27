@@ -12,7 +12,7 @@ SLEEP_BETWEEN_ATTEMPTS=2
 
 # Function to disable power management
 disable_power_management() {
-    log "Disabling power management features..."
+    echo "Disabling power management features..."
     
     # Disable Energy Efficient Ethernet
     ethtool --set-priv-flags $INTERFACE eee off 2>/dev/null
@@ -33,7 +33,7 @@ disable_power_management() {
 full_reset() {
     for module in e1000e mei_me mei; do
         if lsmod | grep -q "^$module"; then
-            log "Unloading $module..."
+            echo "Unloading $module..."
             modprobe -r $module
         fi
     done
@@ -69,7 +69,7 @@ check_link_status() {
 
 # Main recovery function
 recover_network() {
-    log "Starting network recovery procedure..."
+    echo "Starting network recovery procedure..."
     
     # Stop NetworkManager
     systemctl stop NetworkManager
@@ -96,28 +96,28 @@ recover_network() {
     # Wait for link
     for i in $(seq 1 5); do
         if check_link_status; then
-            log "Link detected successfully"
+            echo "Link detected successfully"
             return 0
         fi
         sleep 1
     done
     
-    log "Failed to detect link after recovery"
+    echo "Failed to detect link after recovery"
     return 1
 }
 
 # Main execution
-log "Starting enhanced network recovery"
+echo "Starting enhanced network recovery"
 for attempt in $(seq 1 $MAX_ATTEMPTS); do
-    log "Recovery attempt $attempt of $MAX_ATTEMPTS"
+    echo "Recovery attempt $attempt of $MAX_ATTEMPTS"
     
     if recover_network; then
-        log "Network recovery successful on attempt $attempt"
+        echo "Network recovery successful on attempt $attempt"
         exit 0
     fi
     
     sleep $SLEEP_BETWEEN_ATTEMPTS
 done
 
-log "All recovery attempts failed"
+echo "All recovery attempts failed"
 exit 1
